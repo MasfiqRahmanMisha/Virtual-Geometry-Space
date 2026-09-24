@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Geometry Space</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<header id="topbar">
+  <div class="topbar-left">
+    <span class="app-title">Virtual Geometry Space</span>
+  </div>
+  <div class="topbar-right">
+    <button id="btn-undo" class="tbtn" title="Undo (Ctrl+Z)">⤺ Undo</button>
+    <button id="btn-redo" class="tbtn" title="Redo (Ctrl+Y)">⤻ Redo</button>
+    <span class="sep"></span>
+    <button id="btn-zoom-out" class="tbtn" title="Zoom Out">−</button>
+    <span id="zoom-label">100%</span>
+    <button id="btn-zoom-in" class="tbtn" title="Zoom In">+</button>
+    <button id="btn-zoom-reset" class="tbtn" title="Reset Zoom">Reset</button>
+    <span class="sep"></span>
+    <button id="btn-new" class="tbtn" title="New Project">New</button>
+    <button id="btn-save" class="tbtn" title="Save .mas">Save .mas</button>
+    <button id="btn-open" class="tbtn" title="Open .mas">Open .mas</button>
+    <input type="file" id="file-open" accept=".mas,.json" hidden>
+    <span class="sep"></span>
+    <button id="btn-export-png" class="tbtn" title="Export PNG">PNG</button>
+    <button id="btn-export-jpg" class="tbtn" title="Export JPG">JPG</button>
+    <button id="btn-export-pdf" class="tbtn" title="Export PDF">PDF</button>
+  </div>
+</header>
+
+<div id="workspace">
+
+  <!-- ===================== LEFT TOOLBAR ===================== -->
+  <aside id="left-toolbar">
+    <button class="tool-btn" data-tool="pencil" title="Pencil">
+      <img src="assets/icons/pencil.svg" alt=""><span>Pencil</span>
+    </button>
+    <button class="tool-btn" data-tool="eraser" title="Eraser">
+      <img src="assets/icons/eraser.svg" alt=""><span>Eraser</span>
+    </button>
+    <button class="tool-btn" data-tool="ruler" title="Ruler">
+      <img src="assets/icons/ruler.svg" alt=""><span>Ruler</span>
+    </button>
+    <button class="tool-btn" data-tool="compass" title="Compass">
+      <img src="assets/icons/compass.svg" alt=""><span>Compass</span>
+    </button>
+    <button class="tool-btn" data-tool="protractor" title="Protractor">
+      <img src="assets/icons/protractor.svg" alt=""><span>Protractor</span>
+    </button>
+    <button class="tool-btn active" data-tool="select" title="Select">
+      <img src="assets/icons/select.svg" alt=""><span>Select</span>
+    </button>
+    <button class="tool-btn" data-tool="move" title="Move">
+      <img src="assets/icons/move.svg" alt=""><span>Move</span>
+    </button>
+    <button class="tool-btn" id="btn-clear" title="Clear">
+      <img src="assets/icons/clear.svg" alt=""><span>Clear</span>
+    </button>
+  </aside>
+
+  <!-- ===================== CENTER CANVAS ===================== -->
+  <main id="canvas-area">
+    <div id="canvas-viewport">
+      <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e3e7ee" stroke-width="1"/>
+          </pattern>
+          <linearGradient id="legGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#7a4a20"/>
+            <stop offset="18%" stop-color="#a5693a"/>
+            <stop offset="46%" stop-color="#e3b478"/>
+            <stop offset="54%" stop-color="#e3b478"/>
+            <stop offset="82%" stop-color="#a5693a"/>
+            <stop offset="100%" stop-color="#7a4a20"/>
+          </linearGradient>
+          <radialGradient id="metalKnob" cx="35%" cy="32%" r="70%">
+            <stop offset="0%" stop-color="#fbfcfe"/>
+            <stop offset="45%" stop-color="#d3d9e2"/>
+            <stop offset="100%" stop-color="#8892a3"/>
+          </radialGradient>
+          <radialGradient id="brassKnob" cx="35%" cy="32%" r="70%">
+            <stop offset="0%" stop-color="#fbe6bd"/>
+            <stop offset="45%" stop-color="#d99f56"/>
+            <stop offset="100%" stop-color="#8a5a2b"/>
+          </radialGradient>
+          <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#1f2430" flood-opacity="0.28"/>
+          </filter>
+        </defs>
+        <rect id="grid-bg" x="-4000" y="-4000" width="8000" height="8000" fill="url(#grid)"/>
+        <g id="layer-objects"></g>
+        <g id="layer-instruments"></g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- ===================== RIGHT PANEL ===================== -->
+  <aside id="right-panel">
+    <section class="panel-section">
+      <h3>Measurements</h3>
+      <div id="measurements-box" class="panel-box">
+        <div class="m-row"><span>Length</span><b id="m-length">–</b></div>
+        <div class="m-row"><span>Radius</span><b id="m-radius">–</b></div>
+        <div class="m-row"><span>Angle</span><b id="m-angle">–</b></div>
+        <div class="m-row"><span>Arc Length</span><b id="m-arclength">–</b></div>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h3>Objects</h3>
+      <div id="objects-list" class="panel-box scroll-box">
+        <div class="empty-hint">No objects yet</div>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h3>Help</h3>
+      <div class="panel-box help-box">
+        <p><b>Pencil</b> — freehand draw.</p>
+        <p><b>Eraser</b> — click an object to delete.</p>
+        <p><b>Ruler</b> — drag the ruler body to move, drag its end‑handle to rotate, drag along its edge to draw a line.</p>
+        <p><b>Compass</b> — drag the top handle to move, drag the pencil tip to set radius, drag the pencil leg around to draw an arc/circle.</p>
+        <p><b>Protractor</b> — drag to move/rotate, click two rays to measure an angle.</p>
+        <p><b>Select</b> — click an object to select it and see its measurements.</p>
+        <p><b>Move</b> — drag a selected object to reposition it.</p>
+      </div>
+    </section>
+  </aside>
+
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
